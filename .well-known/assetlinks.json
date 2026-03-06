@@ -1,1 +1,9 @@
-
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "pt.lottiscry.lottiscrypt",
+    "sha256_cert_fingerprints":
+    ["0B:FA:7F:DA:11:CF:FB:B6:27:25:50:B9:C2:DD:ED:9C:92:82:B0:7C:A7:91:8F:B6:7D:16:27:33:D9:16:8C:D7"]
+  }
+}]
