@@ -1,6 +1,154 @@
-<html>
-  <body>
-    <h1>Lottiscrypt</h1>
-    <p>If you have the app installed, this link should have opened automatically!</p>
-  </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LottisCrypt Web</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; padding: 40px; max-width: 600px; margin: auto; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px; }
+        #status { margin-top: 20px; padding: 15px; background: #f4f4f4; border-radius: 5px; font-family: monospace;}
+    </style>
+</head>
+<body>
+    <h1>LottisCrypt Web MVP</h1>
+    <p>Zero-cloud encryption directly in your browser.</p>
+    <div style="margin-bottom: 10px;">
+    <label for="myNameInput" style="font-weight: bold; font-size: 14px;">My Display Name:</label><br>
+    <input type="text" id="myNameInput" placeholder="Web Session" style="width: 100%; padding: 8px; box-sizing: border-box; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc;" />
+</div>
+    <div style="background: #e9ecef; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h3>Your Session Identity</h3>
+        <p style="font-size: 14px; color: #555;">This is your temporary Public Key. It only exists in your browser's RAM and will be destroyed when you close this tab.</p>
+        <textarea id="publicKeyDisplay" rows="3" style="width: 100%; font-family: monospace;" readonly>Generating key...</textarea>
+        <button id="shareMyKeyBtn" style="margin-top: 10px; background: #6c757d;">Share My Web Key (Magic Link)</button>
+    </div>
+
+    <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ffe69c;">
+        <h3>Recipient's Public Key</h3>
+        <p style="font-size: 14px; color: #555;">Paste the Public Key of the person you want to send this file to. (For now, just copy and paste your own key from above to test it!)</p>
+        <textarea id="recipientKeyInput" rows="3" style="width: 100%; font-family: monospace;" placeholder="Paste Base64 key here..."></textarea>
+    </div>
+
+    <div style="border: 1px solid #ccc; padding: 15px; border-radius: 5px;">
+        <h3>Encrypt a File</h3>
+        <input type="file" id="fileInput" />
+        <br><br>
+        <button id="testBtn" disabled>Loading Crypto Engine...</button>
+        <div id="status" style="margin-top: 15px; font-family: monospace; color: #d63384;">Waiting for WASM...</div>
+    </div>
+    <div style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; margin-top: 20px; background: #f8f9fa;">
+        <h3>Decrypt a File</h3>
+        <input type="file" id="decryptInput" accept=".lot" />
+        <br><br>
+        <button id="decryptBtn" disabled>Loading Crypto Engine...</button>
+        <div id="decryptStatus" style="margin-top: 15px; font-family: monospace; color: #198754;">Waiting for WASM...</div>
+    </div>
+
+    <script src="wasm_exec.js"></script>
+<script>
+        const go = new Go();
+        
+        WebAssembly.instantiateStreaming(fetch("crypto.wasm"), go.importObject)
+            .then((result) => {
+                go.run(result.instance);
+                
+                // --- 1. MAGIC LINK PARSER (Check URL for recipient) ---
+                const urlParams = new URLSearchParams(window.location.search);
+                const recipientName = urlParams.get('name');
+                const recipientKey = urlParams.get('key');
+
+                if (recipientName && recipientKey) {
+                    document.getElementById("recipientKeyInput").value = decodeURIComponent(recipientKey);
+                    document.title = "LottisCrypt: Send to " + decodeURIComponent(recipientName);
+                    document.getElementById("status").innerText = "Ready to encrypt for: " + decodeURIComponent(recipientName);
+                    document.getElementById("recipientKeyInput").style.border = "2px solid #198754";
+                }
+
+                // --- 2. GENERATE SESSION IDENTITY ---
+                const myPublicKey = window.LottisGenerateIdentity();
+                document.getElementById("publicKeyDisplay").value = myPublicKey;
+
+                // --- 3. ENABLE ENCRYPT UI ---
+                const btn = document.getElementById("testBtn");
+                const status = document.getElementById("status");
+                const fileInput = document.getElementById("fileInput");
+                btn.innerText = "Encrypt File";
+                btn.disabled = false;
+
+                btn.onclick = async () => {
+                    if (fileInput.files.length === 0) return;
+                    const recipientKey = document.getElementById("recipientKeyInput").value.trim();
+                    if (!recipientKey) { status.innerText = "Please paste a recipient key!"; return; }
+                    
+                    status.innerText = "Encrypting...";
+                    const file = fileInput.files[0];
+                    const arrayBuffer = await file.arrayBuffer();
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    const response = window.LottisEncrypt(uint8Array, recipientKey, file.name);
+                    
+                    if (response instanceof Uint8Array) {
+                        const date = new Date();
+                        const timestamp = date.toISOString().replace(/T/, '_').replace(/:/g, '-').split('.')[0];
+                        const blob = new Blob([response], { type: "application/octet-stream" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = timestamp + ".lot"; 
+                        a.click();
+                        status.innerText = "Downloaded: " + a.download;
+                    } else {
+                        status.innerText = response;
+                    }
+                };
+
+                // --- 4. ENABLE DECRYPT UI ---
+                const decryptBtn = document.getElementById("decryptBtn");
+                const decryptStatus = document.getElementById("decryptStatus");
+                const decryptInput = document.getElementById("decryptInput");
+                decryptBtn.innerText = "Decrypt File";
+                decryptBtn.disabled = false;
+                decryptStatus.innerText = "Ready to decrypt.";
+
+                decryptBtn.onclick = async () => {
+                    if (decryptInput.files.length === 0) return;
+                    decryptStatus.innerText = "Decrypting...";
+                    const file = decryptInput.files[0];
+                    const arrayBuffer = await file.arrayBuffer();
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    const response = window.LottisDecrypt(uint8Array);
+                    
+                    if (response && response.fileName) {
+                        const blob = new Blob([response.fileData], { type: "application/octet-stream" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = response.fileName;
+                        a.click();
+                        decryptStatus.innerText = "Restored: " + response.fileName;
+                    } else {
+                        decryptStatus.innerText = response;
+                    }
+                };
+
+                // --- 5. SHARE MY KEY BUTTON ---
+                document.getElementById("shareMyKeyBtn").onclick = () => {
+                    const myKey = document.getElementById("publicKeyDisplay").value;
+                    let myName = document.getElementById("myNameInput").value.trim();
+                    if (!myName) myName = "Web Session";
+
+                    const magicLink = window.location.origin + window.location.pathname + 
+                                      "?name=" + encodeURIComponent(myName) + 
+                                      "&key=" + encodeURIComponent(myKey);
+                    navigator.clipboard.writeText(magicLink);
+                    alert("Magic Link for '" + myName + "' copied! Send this to your phone.");
+                };
+
+            }) // End of .then
+            .catch((err) => {
+                console.error(err);
+                document.getElementById("status").innerText = "WASM failed to load.";
+            });
+    </script>
+</body>
 </html>
