@@ -58,12 +58,27 @@
                 const recipientName = urlParams.get('name');
                 const recipientKey = urlParams.get('key');
 
-                if (recipientName && recipientKey) {
-                    document.getElementById("recipientKeyInput").value = decodeURIComponent(recipientKey);
-                    document.title = "LottisCrypt: Send to " + decodeURIComponent(recipientName);
-                    document.getElementById("status").innerText = "Ready to encrypt for: " + decodeURIComponent(recipientName);
-                    document.getElementById("recipientKeyInput").style.border = "2px solid #198754";
-                }
+               if (recipientName && recipientKey) {
+    document.getElementById("recipientKeyInput").value = decodeURIComponent(recipientKey);
+    document.title = "LottisCrypt: Send to " + decodeURIComponent(recipientName);
+    document.getElementById("status").innerText = "Ready to encrypt for: " + decodeURIComponent(recipientName);
+    document.getElementById("recipientKeyInput").style.border = "2px solid #198754";
+
+    // --- NEW: App Redirect Logic ---
+    // Make sure to replace 'com.your.package.name' with your actual app package ID!
+    const intentUrl = `intent://${window.location.host}${window.location.pathname}?name=${encodeURIComponent(recipientName)}&key=${encodeURIComponent(recipientKey)}#Intent;scheme=https;package=com.your.package.name;end;`;
+
+    // 1. Attempt to auto-redirect the user to the app
+    window.location.href = intentUrl;
+
+    // 2. Add an "Open in App" fallback button in case the browser blocks auto-redirects
+    document.getElementById("status").innerHTML += `
+        <br><br>
+        <a href="${intentUrl}" style="background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; font-family: sans-serif;">
+            🚀 Open in LottisCrypt App
+        </a>
+    `;
+}
 
                 // --- 2. GENERATE SESSION IDENTITY ---
                 const myPublicKey = window.LottisGenerateIdentity();
