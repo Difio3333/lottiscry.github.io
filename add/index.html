@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Routing LottisCrypt...</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; padding: 40px; text-align: center; color: #555; }
+    </style>
+    <script>
+        // 1. Grab the ?name=...&key=... part of the URL
+        const queryString = window.location.search;
+        
+        // 2. Instantly redirect back to your main app at the root domain, keeping the data intact
+        // Using replace() so this redirect doesn't clutter the user's browser back-button history
+        window.location.replace("/" + queryString);
+    </script>
+</head>
+<body>
+    <p>Opening LottisCrypt...</p>
+    <p style="font-size: 14px;">
+        <a href="/" style="color: #007bff;">Click here</a> if you are not redirected automatically.
+    </p>
+</body>
+</html>
