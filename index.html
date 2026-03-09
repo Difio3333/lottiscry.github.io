@@ -66,18 +66,18 @@
 
     // --- NEW: App Redirect Logic ---
   
-    const intentUrl = `intent://${window.location.host}${window.location.pathname}?name=${encodeURIComponent(recipientName)}&key=${encodeURIComponent(recipientKey)}#Intent;scheme=https;package=pt.lottiscry.lottiscrypt;end;`;
+    const appUrl = `lottiscrypt://add?name=${encodeURIComponent(recipientName)}&key=${encodeURIComponent(recipientKey)}`;
 
-    // 1. Attempt to auto-redirect the user to the app
-    window.location.href = intentUrl;
+// 1. Attempt to auto-redirect the user to the app instantly
+window.location.href = appUrl;
 
-    // 2. Add an "Open in App" fallback button in case the browser blocks auto-redirects
-    document.getElementById("status").innerHTML += `
-        <br><br>
-        <a href="${intentUrl}" style="background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; font-family: sans-serif;">
-            🚀 Open in LottisCrypt App
-        </a>
-    `;
+// 2. Add an "Open in App" fallback button
+document.getElementById("status").innerHTML += `
+    <br><br>
+    <a href="${appUrl}" style="background: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 5px; display: inline-block; font-family: sans-serif;">
+        🚀 Open in LottisCrypt App
+    </a>
+`;
 }
 
                 // --- 2. GENERATE SESSION IDENTITY ---
