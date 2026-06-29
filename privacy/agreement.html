@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - LottisCrypt</title>
+    <title>Privacy Policies - LottisCrypt & LottisChat</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -17,10 +17,14 @@
             color: #000000;
             border-bottom: 2px solid #eeeeee;
             padding-bottom: 10px;
+            margin-top: 40px;
+        }
+        h1:first-of-type {
+            margin-top: 0;
         }
         h2 {
             color: #222222;
-            margin-top: 30px;
+            margin-top: 25px;
         }
         p {
             margin-bottom: 15px;
@@ -38,12 +42,18 @@
         a:hover {
             text-decoration: underline;
         }
+        hr {
+            border: 0;
+            height: 1px;
+            background: #dddddd;
+            margin: 50px 0;
+        }
     </style>
 </head>
 <body>
 
     <h1>Privacy Policy for LottisCrypt</h1>
-    <p><strong>Effective Date:</strong> March 19, 2026</p>
+    <p><strong>Effective Date:</strong> June 29, 2026</p>
 
     <h2>1. Introduction</h2>
     <p>This Privacy Policy applies to the LottisCrypt mobile application (the "App") for iOS and Android. LottisCrypt was built with a strict offline-first, zero-trust architecture.</p>
@@ -64,9 +74,37 @@
     <h2>5. Changes to This Policy</h2>
     <p>If we ever change this policy, we will update this page. However, our core philosophy will never change: we do not want your data.</p>
 
-    <h2>6. Contact Us</h2>
-    <p>If you have any questions about this Privacy Policy, please contact us at:<br>
-    <a href="mailto:fridolin.kerner@gmx.de">[fridolin.kerner@gmx.de]</a></p>
+    <hr>
+
+    <h1>Privacy Policy for LottisChat</h1>
+    <p><strong>Effective Date:</strong> June 29, 2026</p>
+
+    <h2>1. Introduction</h2>
+    <p>This Privacy Policy applies to the LottisChat peer-to-peer messaging and communication framework (the "Service") integrated into our mobile applications. LottisChat is built around absolute data minimization and real-time ephemeral routing.</p>
+
+    <h2>2. Peer-to-Peer Signaling & Data Transience</h2>
+    <p>To establish real-time audio, video, or data connections between devices, the Service utilizes an isolated, secure signaling infrastructure hosted at <code>lottisch.at</code> using the WebSocket Secure (WSS) protocol.</p>
+    <ul>
+        <li><strong>Transient Handshaking:</strong> The signaling server acts strictly as a temporary network coordinator. It allows two devices to discover each other and exchange WebRTC metadata (such as local network IP addresses, routing offers, and answers).</li>
+        <li><strong>Zero Data Retention:</strong> All connection payloads are processed strictly within volatile server memory (RAM). This data is never written to permanent storage disks, never logged, and never inspected.</li>
+        <li><strong>Immediate Memory Purging:</strong> The moment a communication room hits its capacity (2 users) or a user terminates their connection, all session attributes associated with that room are instantly wiped from the server's volatile memory.</li>
+        <li><strong>Direct Media Streams:</strong> No communication content or media streams ever touch our server architecture. Once the initial handshake is completed via the signaling server, the media and text data flow entirely directly between you and your peer.</li>
+    </ul>
+
+    <h2>3. Data Collection and Tracking</h2>
+    <p><strong>No personal information is collected or tracked.</strong> LottisChat does not log metadata, communication timestamps, user IP addresses, hardware identifiers, or usage analytics.</p>
+
+    <h2>4. Third-Party Dependencies</h2>
+    <p>The LottisChat framework does not use external SDKs, commercial trackers, analytics platforms, or third-party cloud coordination services. The infrastructure is entirely self-hosted and independent.</p>
+
+    <h2>5. Changes to This Policy</h2>
+    <p>Any revisions to this document will be reflected here. The fundamental engineering model of this system will always prioritize total user anonymity and zero data persistence.</p>
+
+    <hr>
+
+    <h2>Contact Us</h2>
+    <p>If you have any questions about the privacy structures of LottisCrypt or LottisChat, please contact us at:<br>
+    <a href="mailto:fridolin.kerner@gmx.de">fridolin.kerner@gmx.de</a></p>
 
 </body>
 </html>
